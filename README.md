@@ -10,11 +10,27 @@ This project contains an automated testing framework for the **QA Training Appli
 * **Allure:** For generating rich, graphical test reports
 
 ## Prerequisites
-Before running the tests, ensure you have the following installed on your machine:
+Before running the tests, ensure you have the following installed on your machine and accessible from your terminal (added to your system PATH). You can verify them using the following commands:
+
 * **Java** (JDK 17 or higher recommended)
+  ```powershell
+  java -version
+  ```
 * **Maven**
-* **MySQL** Server (Running locally with a database named `qa_training`)
-* **Google Chrome** browser (for Selenium headless UI tests)
+  ```powershell
+  mvn -version
+  ```
+* **MySQL** Server
+  ```powershell
+  mysql --version
+  ```
+* **Google Chrome** browser (for Selenium UI tests)
+
+### Database Setup
+You need a local MySQL database named `qa_training`. You can create it using the following command (you will be prompted for your MySQL root password):
+```powershell
+mysql -u root -p -e "CREATE DATABASE IF NOT EXISTS qa_training;"
+```
 
 ## Getting Started
 
@@ -25,7 +41,7 @@ Open a terminal at the project root and start the application:
 ```powershell
 java -jar application\qa-training-app.jar --spring.datasource.username=root --spring.datasource.password=YOUR_MYSQL_PASSWORD
 ```
-*(Make sure to replace `YOUR_MYSQL_PASSWORD` with your actual local MySQL root password. You also need to have created an empty `qa_training` database).*
+*(Make sure to replace `YOUR_MYSQL_PASSWORD` with your actual local MySQL root password).*
 
 ### 2. Run the Automated Tests
 Once the application is running (usually on `http://localhost:8080`), open a **new** terminal window and navigate to the `automation-framework` directory:
@@ -33,7 +49,7 @@ Once the application is running (usually on `http://localhost:8080`), open a **n
 cd automation-framework
 ```
 
-Run the tests using Maven:
+Run all tests using Maven:
 ```powershell
 mvn clean test
 ```
@@ -51,3 +67,16 @@ This will process the test results and automatically open the report in your def
   * `src/test/resources/features/`: Contains the Cucumber `.feature` files written in Gherkin.
   * `src/test/java/stepdefinitions/`: Contains the Java code that executes the steps defined in the feature files.
   * `src/test/java/runners/`: Contains the JUnit TestRunner configuration.
+
+## Guidelines
+* **Database Reset:** Always start with a fresh instance of the database or clear existing test data before running the tests to avoid state-related failures. You can drop and recreate the DB:
+  ```powershell
+  mysql -u root -p -e "DROP DATABASE IF EXISTS qa_training; CREATE DATABASE qa_training;"
+  ```
+* **Browser Drivers:** Ensure your Chrome browser is up to date. The framework uses WebDriverManager which handles driver binaries, but it requires a matching browser version.
+* **Headless Mode:** By default, UI tests might run in headless mode depending on configuration. If you need to watch the test execution, check the WebDriver configuration in the framework.
+* **Test Failures:** If a test fails, check the generated Allure report. It provides screenshots and detailed logs for UI and API tests respectively.
+* **Running Specific Tags:** You can run specific test scenarios by passing Cucumber tags via Maven. For example, to run only UI tests:
+  ```powershell
+  mvn test -Dcucumber.filter.tags="@UI"
+  ```
