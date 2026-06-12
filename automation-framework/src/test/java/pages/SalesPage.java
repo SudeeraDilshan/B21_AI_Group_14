@@ -14,10 +14,7 @@ import java.util.List;
  * Page Object for /ui/sales (Sales list page).
  * Covers SRS §7.1: list, sort, pagination, empty state.
  */
-public class SalesPage {
-
-    private final WebDriver driver;
-    private final WebDriverWait wait;
+public class SalesPage extends BasePage {
 
     // --- Navigation ---
     private static final By SELL_PLANT_BUTTON  = By.linkText("Sell Plant");
@@ -35,8 +32,7 @@ public class SalesPage {
     private static final By PAGINATION         = By.cssSelector("nav .pagination");
 
     public SalesPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(5));
+        super(driver);
     }
 
     // ---- Navigation actions ----

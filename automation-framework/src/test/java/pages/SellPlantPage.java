@@ -15,10 +15,7 @@ import java.util.regex.Pattern;
  * Page Object for /ui/sales/new (Sell Plant form).
  * Covers SRS §7.2: plant selection, quantity input, validation errors, error-on-same-page.
  */
-public class SellPlantPage {
-
-    private final WebDriver driver;
-    private final WebDriverWait wait;
+public class SellPlantPage extends BasePage {
 
     // sale-form.html field identifiers
     private static final By PLANT_DROPDOWN       = By.id("plantId");
@@ -36,8 +33,7 @@ public class SellPlantPage {
     private static final By ERROR_ALERT          = By.cssSelector(".alert-danger");
 
     public SellPlantPage(WebDriver driver) {
-        this.driver = driver;
-        this.wait   = new WebDriverWait(driver, Duration.ofSeconds(5));
+        super(driver);
     }
 
     // ---- Plant dropdown ----
