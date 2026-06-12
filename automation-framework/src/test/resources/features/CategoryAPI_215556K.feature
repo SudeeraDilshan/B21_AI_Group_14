@@ -56,3 +56,4 @@ Feature: Category API Tests for Tester 215556K
     And a parent category with subcategories exists
     When I send a category GET request to "/api/categories/{id}/subcategories"
     Then the category response status should be 200
+    

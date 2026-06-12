@@ -51,3 +51,6 @@ Feature: Category UI Tests for Tester 215556K
   Scenario: UI_Category_DisplayCategoriesListAsUser_010
     Given I am on the Categories list page as a normal user
     Then I should see the list of categories with ID, Name, and Parent columns
+    
+
+
