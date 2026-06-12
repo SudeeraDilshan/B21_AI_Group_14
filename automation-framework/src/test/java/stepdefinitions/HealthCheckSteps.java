@@ -9,11 +9,13 @@ import org.junit.jupiter.api.Assertions;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
+import pages.SwaggerUIPage;
 
 public class HealthCheckSteps {
 
     private Response response;
     private WebDriver driver;
+    private SwaggerUIPage swaggerUIPage;
     private final String BASE_URL = "http://localhost:8080";
 
     public HealthCheckSteps() {
@@ -41,13 +43,15 @@ public class HealthCheckSteps {
         options.addArguments("--headless=new"); // Run headless
         options.addArguments("--remote-allow-origins=*");
         driver = new ChromeDriver(options);
-        driver.get(BASE_URL + "/swagger-ui.html");
+        
+        swaggerUIPage = new SwaggerUIPage(driver);
+        swaggerUIPage.open();
     }
 
     @Then("the page title should contain {string}")
     public void the_page_title_should_contain(String expectedTitle) {
         try {
-            String actualTitle = driver.getTitle();
+            String actualTitle = swaggerUIPage.getTitle();
             Assertions.assertTrue(actualTitle.contains(expectedTitle), 
                 "Expected title to contain '" + expectedTitle + "' but was '" + actualTitle + "'");
         } finally {
