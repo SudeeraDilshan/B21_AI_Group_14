@@ -251,4 +251,99 @@ public class SalesUISteps {
         // Assert true if pagination isn't strictly visible in a small DB
         Assertions.assertTrue(true);
     }
+
+    // ===== Additional SRS Section 7 coverage (UI_021 - UI_023) =====
+
+    // --- UI_021: SRS 7.1 sorting by Plant name ---
+    @When("I click the Plant Name column header")
+    public void i_click_the_plant_name_column_header() {
+        // In sales.html the Plant header link carries sortField='plant.name'
+        wait.until(ExpectedConditions.elementToBeClickable(
+                By.xpath("//th//a[normalize-space(text())='Plant']"))).click();
+        wait.until(ExpectedConditions.urlContains("sortField=plant.name"));
+    }
+
+    @Then("Sales should be sorted by Plant Name correctly")
+    public void sales_should_be_sorted_by_plant_name_correctly() {
+        Assertions.assertTrue(driver.getCurrentUrl().contains("sortField=plant.name"),
+                "Expected the URL to carry the plant.name sort field");
+
+        // Plant name is the first cell of each data row
+        java.util.List<String> names = new java.util.ArrayList<>();
+        for (WebElement row : driver.findElements(By.cssSelector("table tbody tr"))) {
+            List<WebElement> cells = row.findElements(By.tagName("td"));
+            if (cells.size() > 1) { // skip the single-cell "No sales found" row
+                names.add(cells.get(0).getText().trim().toLowerCase());
+            }
+        }
+
+        java.util.List<String> ascending = new java.util.ArrayList<>(names);
+        java.util.Collections.sort(ascending);
+        java.util.List<String> descending = new java.util.ArrayList<>(ascending);
+        java.util.Collections.reverse(descending);
+
+        Assertions.assertTrue(names.equals(ascending) || names.equals(descending),
+                "Plant column is not in sorted order: " + names);
+    }
+
+    // --- UI_022: SRS 7.2 "Plant is required" validation ---
+    @When("I submit the sell form without selecting a plant")
+    public void i_submit_the_sell_form_without_selecting_a_plant() {
+        // Keep the Plant dropdown on its empty placeholder option, then submit
+        new Select(driver.findElement(By.id("plantId"))).selectByValue("");
+        driver.findElement(By.xpath("//button[normalize-space(text())='Sell']")).click();
+    }
+
+    @Then("I should see a plant validation message {string}")
+    public void i_should_see_a_plant_validation_message(String expected) {
+        // sale-form.html renders the plantId @NotNull error into div.text-danger
+        WebElement error = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector("div.text-danger")));
+        Assertions.assertTrue(error.getText().contains(expected),
+                "Expected plant validation message '" + expected + "' but saw '" + error.getText() + "'");
+    }
+
+    // --- UI_023: SRS 7.2 error message displayed on the same page ---
+    @When("I select a plant from the dropdown")
+    public void i_select_a_plant_from_the_dropdown() {
+        Select plantSelect = new Select(wait.until(
+                ExpectedConditions.presenceOfElementLocated(By.id("plantId"))));
+        plantSelect.selectByIndex(1); // index 0 is the "-- Select Plant --" placeholder
+    }
+
+    @When("I enter a quantity greater than available stock")
+    public void i_enter_a_quantity_greater_than_available_stock() {
+        // Option text is "<name> (Stock: <qty>)" - sell one more than the available stock
+        Select plantSelect = new Select(driver.findElement(By.id("plantId")));
+        String optionText = plantSelect.getFirstSelectedOption().getText();
+        long quantity = 1_000_000L;
+        java.util.regex.Matcher m =
+                java.util.regex.Pattern.compile("Stock:\\s*(\\d+)").matcher(optionText);
+        if (m.find()) {
+            quantity = Long.parseLong(m.group(1)) + 1;
+        }
+        WebElement qty = driver.findElement(By.name("quantity"));
+        qty.clear();
+        qty.sendKeys(String.valueOf(quantity));
+    }
+
+    @Then("an error message should be displayed on the Sell Plant page")
+    public void an_error_message_should_be_displayed_on_the_sell_plant_page() {
+        WebElement alert = wait.until(ExpectedConditions.visibilityOfElementLocated(
+                By.cssSelector(".alert-danger")));
+        Assertions.assertTrue(alert.isDisplayed(),
+                "Expected an error alert to be shown after a failed sale");
+        // The controller returns the sale-form view on error (no redirect),
+        // so the Plant dropdown is still present -> we stayed on the same page.
+        Assertions.assertFalse(driver.findElements(By.id("plantId")).isEmpty(),
+                "Expected to remain on the Sell Plant page after the error");
+    }
+
+    @Then("the sale should not be created")
+    public void the_sale_should_not_be_created() {
+        // A successful sale redirects to the list (no plant dropdown); remaining on the
+        // form with the dropdown present confirms this submit did not create a sale.
+        Assertions.assertFalse(driver.findElements(By.id("plantId")).isEmpty(),
+                "A sale appears to have been created (redirected away from the Sell Plant form)");
+    }
 }
