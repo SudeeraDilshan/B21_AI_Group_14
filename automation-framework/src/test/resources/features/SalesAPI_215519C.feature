@@ -95,3 +95,4 @@
     And I send a DELETE request to "/api/sales/{id}"
     Then the response status code is 500 Internal Server Error
     And an appropriate server error is returned
+
