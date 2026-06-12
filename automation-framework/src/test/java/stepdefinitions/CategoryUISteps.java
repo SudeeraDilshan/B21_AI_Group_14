@@ -32,7 +32,6 @@ public class CategoryUISteps {
         if (driver == null) {
             ChromeOptions options = new ChromeOptions();
             options.addArguments("--remote-allow-origins=*");
-            options.addArguments("--headless=new"); // Added headless mode to prevent UI pop-ups
             driver = new ChromeDriver(options);
             driver.manage().window().maximize();
             
