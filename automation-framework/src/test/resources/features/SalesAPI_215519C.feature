@@ -23,8 +23,8 @@
     And a Plant with the entered PlantId exists
     And the Plant stock quantity is greater than or equal to the requested quantity
     When I navigate to POST "/api/sales/plant/{plantId}"
-    And I provide a valid plantId
-    And I pass quantity with a positive integer value
+    And I provide a valid plantId 2
+    And I pass quantity 20
     And I add Authorization header with Admin token
     And I send the POST request
     Then the response status code is 201 Created
@@ -37,7 +37,7 @@
     And a Plant exists with known stock quantity
     And I note the current plant stock quantity
     When I navigate to POST "/api/sales/plant/{plantId}"
-    And I provide a valid plantId
+    And I provide a valid plantId 2
     And I send a POST request to sell the plant with quantity 0
     Then the response status code is 400 Bad Request
     And the response body contains status, error, message indicating invalid quantity, timestamp
@@ -79,7 +79,8 @@
     Then the response status code is 404 Not Found
     And an appropriate error message is returned indicating sale not found
 
-  Scenario: API_Non_Admin_Delete_Sale_019
+  @KnownDefect
+  Scenario: API_NonAdmin_Delete_Sale_Security_019
     Given a User is logged in as non-Admin
     And a valid authentication token is available
     And a Sale exists in the system
@@ -87,6 +88,7 @@
     And I send a DELETE request to "/api/sales/{id}" using non-Admin token
     Then the response status code is 403 Forbidden
     And the Sale is not deleted
+    And the sale still exists when retrieved via GET
 
   Scenario: API_Sale_Internal_Server_error_020
     Given an Admin is logged in and valid Admin access token is available
