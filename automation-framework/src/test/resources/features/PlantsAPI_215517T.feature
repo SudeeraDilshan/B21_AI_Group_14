@@ -5,6 +5,7 @@ Feature: Plants API Tests for Tester 215517T
      And the plant management dashboard is displayed 
          
  Scenario: API_Plants_AddSubmit_015
+    Given I am on the Add Plant page
     When I fill valid data and click Save
     Then the new plant is created with a success message
 

@@ -43,10 +43,11 @@ Feature: Plants UI Tests for Tester 215517T
     When I click the Price column header
     Then plants are sorted by price
 
-  Scenario: UI_Plants_SortStock_010
-    Given the plants list has multiple records
-    When I click the Stock column header
-    Then plants are sorted by quantity
+  @KnownDefect
+  Scenario: UI_Plants_SearchNameWithSpace_010
+    When I open "/ui/plants"
+    And I enter a plant name with a space "Snake Plant" in the Search field and click Search
+    Then matching plant records are displayed for the name containing a space
 
   Scenario: UI_Plants_LowStockHighlight_011
     When I view the plants page
@@ -56,10 +57,16 @@ Feature: Plants UI Tests for Tester 215517T
     When I click Next on the plants page
     Then the next page of plant records is displayed
 
-  Scenario: UI_Plants_PaginationPrev_013
-    Given I am on page 2 or higher
-    When I click Previous
-    Then the previous page of plant records is displayed
+  @KnownDefect
+  Scenario: UI_Plants_ValidateAllErrors_013
+    Given I am on the Add Plant page
+    When I leave Plant Name blank
+    And I leave Category unselected
+    And I enter invalid Price
+    And I enter invalid Quantity
+    And I click Save
+    Then validation errors for Name, Category, Price and Quantity are all shown simultaneously
+    And the record is not saved
 
   Scenario: UI_Plants_AddPage_014
     When I click Add a Plant or navigate to "/ui/plants/add"
