@@ -1,0 +1,55 @@
+name: CI — Test & Publish Report
+
+on:
+  push:
+    branches: [ dev_2 ]
+  pull_request:
+    branches: [ dev_2 ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  build-and-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Cache Maven local repository
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-m2-
+
+      - name: Build and run tests
+        run: mvn -B clean test
+
+      - name: Generate Surefire HTML report
+        run: mvn surefire-report:report
+
+      - name: Upload report artifact for Pages
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: ./target/site
+
+  deploy-pages:
+    needs: build-and-report
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+      contents: read
+    steps:
+      - name: Deploy to GitHub Pages
+        uses: actions/deploy-pages@v1
